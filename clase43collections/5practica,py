@@ -1,0 +1,54 @@
+from collections import defaultdict, deque
+from enum import Enum
+from collections import Counter
+
+# Definir los estados posibles de un pedido
+class OrderStatus(Enum):
+    PENDIENTE = 1
+    ENVIADO = 2
+    ENTREGADO = 3
+    CANCELADO = 4
+
+# Clase para manejar el sistema de pedidos
+class SistemaPedidos:
+    def __init__(self):
+        self.pedidos = deque()  # Cola para manejar pedidos
+        self.estado_pedidos = defaultdict(lambda: OrderStatus.PENDIENTE)
+        self.productos_vendidos = Counter()
+
+    def agregar_pedido(self, id_pedido, producto):
+        self.pedidos.append(id_pedido)
+        self.estado_pedidos[id_pedido] = OrderStatus.PENDIENTE
+        self.productos_vendidos[producto] += 1
+        print(f"Pedido {id_pedido} agregado con producto: {producto}")
+
+    def procesar_pedido(self):
+        if self.pedidos:
+            id_pedido = self.pedidos.popleft()
+            self.estado_pedidos[id_pedido] = OrderStatus.ENVIADO
+            print(f"Pedido {id_pedido} procesado (estado: ENVIADO)")
+        else:
+            print("No hay pedidos por procesar.")
+
+    def entregar_pedido(self, id_pedido):
+        if self.estado_pedidos[id_pedido] == OrderStatus.ENVIADO:
+            self.estado_pedidos[id_pedido] = OrderStatus.ENTREGADO
+            print(f"Pedido {id_pedido} entregado.")
+        else:
+            print(f"No se puede entregar el pedido {id_pedido}. Estado actual: {self.estado_pedidos[id_pedido].name}")
+
+    def mostrar_resumen(self):
+        print("\nResumen de pedidos:")
+        for id_pedido, estado in self.estado_pedidos.items():
+            print(f"Pedido {id_pedido}: {estado.name}")
+        print("\nProductos vendidos:")
+        for producto, cantidad in self.productos_vendidos.items():
+            print(f"{producto}: {cantidad}")
+
+# Uso del sistema
+sistema = SistemaPedidos()
+sistema.agregar_pedido("001", "laptop")
+sistema.agregar_pedido("002", "smartphone")
+sistema.procesar_pedido()
+sistema.entregar_pedido("001")
+sistema.mostrar_resumen()
